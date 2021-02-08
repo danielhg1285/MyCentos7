@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Resolve script location, $_me may be a symbolic link
+_me="${BASH_SOURCE[0]}"
+script="$_me"
+while [ -h "$script" ] ; do
+  lst=$(ls -ld "$script")
+  lnk=$(expr "$lst" : '.*-> \(.*\)$')
+  if expr "$lnk" : '/.*' > /dev/null; then
+    script="$lnk"
+  else
+    script=$(dirname "$script")/"$lnk"
+  fi
+done
+_BIN=$(dirname "$script")
+
+backup_dir=${1:?}
+deltas_dir=${2:?}
+restore_dir=${3:?}
+
+mkdir -p $restore_dir/control
+mkdir -p $restore_dir/database
+find $backup_dir -type f | sed 's|'$backup_dir'||' | grep -v .wal | \
+while read file; do
+	echo "Restoring file $restore_dir$file"
+	# With decompression
+	#xdelta3 -f -d -s $backup_dir$file $deltas_dir$file.delta $restore_dir$file
+	xdelta3 -f -s $backup_dir$file $deltas_dir$file.delta $restore_dir$file
+done
+

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+print_packages() {
+cat << EOT
+cmirror
+corosync
+corosynclib
+ctdb
+ctdb-tests
+dlm
+dlm-lib
+libqb
+lvm2-cluster
+omping
+pacemaker
+pacemaker-cli
+pacemaker-cluster-libs
+pacemaker-cts
+pacemaker-libs
+pacemaker-remote
+pcs
+python-clufter
+resource-agents
+sbd
+gfs2-utils
+EOT
+}
+
+print_packages | \
+while read package; do
+	yumdownloader $package
+done

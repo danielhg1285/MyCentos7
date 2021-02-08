@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=haroopad
+Version=0.12.2
+Exec=/opt/haroopad/usr/bin/haroopad
+Comment=The Next Document processor based on Markdown
+Icon=/opt/haroopad/usr/share/icons/hicolor/128x128/apps/haroopad.png
+Type=Application
+Terminal=false
+StartupNotify=true
+Encoding=UTF-8
+Categories=Development;GTK;GNOME;
+Name[en_US]=haroopad

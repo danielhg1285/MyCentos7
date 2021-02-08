@@ -1,0 +1,105 @@
+function usage(){
+cat << XXX
+usage: $0 [OPTIONS]
+
+OPTIONS:
+        
+	-h --host:                   host ip.
+	-u --user:                   user.
+	-p --password:               password.
+	-o --olddb:                  old database
+	-n --newdb:                  new database
+
+        -? --help  :  usage
+
+XXX
+}
+
+# Contract long options into short options
+params=""
+while [ $# -ne 0 ]; do
+        param="$1"
+        shift
+
+        case "$param" in
+                
+		--host)
+			params="$params -h";;
+		--host=*)
+			params="$params -h=${param#*=}";;
+		--user)
+			params="$params -u";;
+		--user=*)
+			params="$params -u=${param#*=}";;
+		--password)
+			params="$params -p";;
+		--password=*)
+			params="$params -p=${param#*=}";;
+		--olddb)
+			params="$params -o";;
+		--olddb=*)
+			params="$params -o=${param#*=}";;
+		--newdb)
+			params="$params -n";;
+		--newdb=*)
+			params="$params -n=${param#*=}";;
+                "-?"|--help)
+                        usage
+                        exit 0;;
+                *)
+                        if [[ "$param" == --* ]]; then
+                                echo -e "Unrecognized long option: $param"
+                                usage
+                                exit 1
+                        fi
+                        params="$params \"$param\"";;
+        esac
+done
+
+eval set -- "$params"
+
+# Set default variable values
+
+
+# Get required options and parameters
+required_short_options="-h -u -p -o -n"
+required_long_options="--host --user --password --olddb --newdb"
+
+# Create an associative array with with short options as keys and long options as values
+declare -A hash_options=([-h]=--host [-u]=--user [-p]=--password [-o]=--olddb [-n]=--newdb )
+
+# Process using getopts 
+while getopts "h:u:p:o:n:" option; do
+        # Return error when argument is an option of type Ex: --option or --option=xxxxx
+        [[ -n "$OPTARG" ]] && [[ "${required_short_options}" == *"${OPTARG/=*/}"* ]] && echo "Invalid parameter: ${hash_options["${OPTARG/=*/}"]}"=${OPTARG#*=} && usage
+        case $option in
+                # Substitute actions for different variables
+                
+		h)
+			host="$OPTARG"
+			$(grep -q '^=' <<< "$OPTARG") && hash_options[-h"$OPTARG"]=--host"$OPTARG";;
+		u)
+			user="$OPTARG"
+			$(grep -q '^=' <<< "$OPTARG") && hash_options[-u"$OPTARG"]=--user"$OPTARG";;
+		p)
+			password="$OPTARG"
+			$(grep -q '^=' <<< "$OPTARG") && hash_options[-p"$OPTARG"]=--password"$OPTARG";;
+		o)
+			olddb="$OPTARG"
+			$(grep -q '^=' <<< "$OPTARG") && hash_options[-o"$OPTARG"]=--olddb"$OPTARG";;
+		n)
+			newdb="$OPTARG"
+			$(grep -q '^=' <<< "$OPTARG") && hash_options[-n"$OPTARG"]=--newdb"$OPTARG";;
+                :)
+                        echo "Option - $OPTARG requires an argument"
+                        exit 1;;
+                *)      
+                        echo "Unknown option: $option"
+                        usage
+                        exit 1;;
+        esac
+done
+
+# Clean up after self
+[[ -z "copy_mysql_database.sh" ]] && rm copy_mysql_database.sh_optparse
+

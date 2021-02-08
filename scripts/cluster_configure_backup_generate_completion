@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Source the optparse.bash file ---------------------------------------------------
+source /usr/bin/optparse.bash
+
+# Define options
+optparse.define short=t long=task desc="task command to execute." variable=task file=true required=true
+optparse.define short=y long=type desc="The type of backup, full or delta." variable=type list="full delta configuration" required=true
+optparse.define short=s long=threads desc="Number of threds(cores) to perform backup." variable=threads
+optparse.define short=n long=number-of-copies desc="Number of copies to recycle." variable=number required=true
+optparse.define short=d long=directory-to-backup desc="Path of directory to backup." variable=directory file=true required=true
+optparse.define short=f long=full-backup-path desc="Full backup path." variable=full_backup_path file=true
+optparse.define short=k long=delta-backup-path desc="Delta backup path." variable=delta_backup_path file=true
+optparse.define short=u long=configuration-backup-path desc="Configuration backup path." variable=configuration_backup_path file=true
+optparse.define short=m long=minute desc="Minute to execute task." variable=minute default=*
+optparse.define short=h long=hour desc="Hour to execute task." variable=hour default=*
+optparse.define short=o long=day-of-month desc="Day number of month to execute task." variable=day_of_month default=*
+optparse.define short=x long=month desc="Month to execute task." variable=month default=* list="January February March April May June July August September October November December" default=*
+optparse.define short=e long=day-of-week desc="Hour to execute task." variable=day_of_week default=* list="Monday Tuesday Wednesday Thursday Friday Saturday Sunday" default=*
+
+# Generate optparse and autocompletion scripts
+script_name="cluster_configure_backup"
+optparse.build $script_name
+
+exit 0
+

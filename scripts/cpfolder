@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# cpfolder
+# Replaces folder from local filesystem in remote filesystem
+# Ex: $ cpfolder /home/danyboy/WorkspaceTFS/mbc-2.30-puppet/mbc-core/mbc-foreman-installer/src/main/root/etc/puppet/modules \
+#      production root 172.26.24.35 /etc/puppet/modules            
+
+project_parent_path=${1:?}
+folder=${2:?}
+user_name=${3:?}
+server_ip=${4:?}
+destiny_path=${5:?}
+ssh ${user_name}@${server_ip} "rm -rf ${destiny_path}/${folder}"
+scp -r ${project_parent_path}/${folder} ${user_name}@${server_ip}:${destiny_path}

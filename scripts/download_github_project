@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+cd /home/danyboy/WorkspaceGithub
+if [ -d /home/danyboy/WorkspaceGithub/ArkCORE4 ]; then
+  cd /home/danyboy/WorkspaceGithub/ArkCORE4
+  git pull
+else  
+  git clone https://github.com/Arkania/ArkCORE4
+fi
+cd

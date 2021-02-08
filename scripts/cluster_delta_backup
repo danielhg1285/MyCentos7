@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# cluster_delta_backup
+#
+# This script creates a delta backup from existing directory and one of its backups. It creates the copy on a directory 
+# with the actual date + full backup date inside the backup directory.     
+#    
+# @param $1: actual directory path
+# @param $2: full backup path
+# @param $3: delta backup path
+# @param $4: number of threads to use
+#
+# Example:
+#   $ cluster_delta_backup /var/lib/facedb /var/lib/diskbp1/backup/full /var/lib/diskbp1/backup/delta 6
+#
+# AUTHOR
+#   Written by Daniel Hernández Garrigó <daniel.hernandez@datys.cu>
+
+DELTA_BACKUP_CONF=/etc/cluster_delta_backup.conf
+DELTA_BACKUP_LOG=/var/log/delta_backup.log
+XDELTA_CMD=xdelta3
+XDELTA_OPTIONS="-v -f -0 -s "
+
+actualDirectoryPath=${1:?}
+fullBackupPath=${2:?}
+deltaBackupPath=${3:?}
+threads=$4
+
+mkdir -p $deltaBackupPath
+deltaMaxNumberDirs=$(cat $DELTA_BACKUP_CONF | grep copies | cut -d '=' -f 2 )
+deltaActualNumberDirs=$[ $(ls -l $deltaBackupPath | wc -l ) - 1]
+actualDate=$(date +"%Y-%m-%d-%T")
+fullActualNumberDirs=$[ $(ls -l $fullBackupPath | wc -l ) - 1]
+
+# Get latest backup dir filename
+latestFullBackup=$(ls -l $fullBackupPath | awk '{ print $9}' | tail -n +$[ fullActualNumberDirs + 1 ])
+
+if (( deltaActualNumberDirs >= deltaMaxNumberDirs )); then
+   # Get oldest delta backup directory(First of the list)
+   # command tail -n +2 remove first line containing string "total"
+   # comand head -n -x remove the last x lines from list 
+   oldestDeltaDate=$(ls -l $deltaBackupPath | awk '{ print $9}' | tail -n +2 | head -n -$[ deltaActualNumberDirs - 1 ])
+   # Rename oldest directory from list to actual date
+   mv $deltaBackupPath/$oldestDeltaDate $deltaBackupPath/$actualDate-full-$latestFullBackup
+   rm -rf $deltaBackupPath/$actualDate-full-$latestFullBackup/*
+fi
+
+# Create delta backup directory tree
+find $actualDirectoryPath/ -type d | sed 's|'$actualDirectoryPath/'||' | parallel mkdir -p $deltaBackupPath/$actualDate-full-$latestFullBackup/{}
+
+# Create xdelta backup using parallel
+echo "$(date -u) Executing backup using $threads threads" >> $DELTA_BACKUP_LOG 2>&1
+find $actualDirectoryPath/ -type f | sed 's|'$actualDirectoryPath/'||' | grep -v .wal | parallel --jobs $threads -k \
+"echo $(date -u) Creating delta backup for backup file $fullBackupPath/$latestFullBackup/{} \
+and file $actualDirectoryPath/{} on file $deltaBackupPath/$actualDate-full-$latestFullBackup/{}.delta >> $DELTA_BACKUP_LOG 2>&1; \
+$XDELTA_CMD $XDELTA_OPTIONS $fullBackupPath/$latestFullBackup/{} $actualDirectoryPath/{} $deltaBackupPath/$actualDate-full-$latestFullBackup/{}.delta >> $DELTA_BACKUP_LOG 2>&1"

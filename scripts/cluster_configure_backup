@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# Source the cluster_configure_backup_optparse file ---------------------------------------------------
+source /usr/sbin/cluster_configure_backup_optparse
+
+restart_cron() {
+  service crond restart
+}
+
+# Command
+cmd="/usr/sbin/write_cron_conf"
+
+cat > /etc/cluster_${type}_backup.conf << EOT
+# Max number of full backup folders to keep
+copies=$number
+EOT
+
+if [ "$type" == "full" ]; then
+   # Task to make full backup
+   task="/usr/sbin/cluster_full_backup"
+   task_parameters="$directory $full_backup_path"
+elif [ "$type" == "delta" ]; then
+   # Task to make delta backup
+   task="/usr/sbin/cluster_delta_backup"
+   task_parameters="$directory $full_backup_path $delta_backup_path $threads"
+elif [ "$type" == "configuration" ]; then
+   # Task to make delta backup
+   task="/usr/sbin/cluster_configuration_backup"
+   task_parameters="$directory $configuration_backup_path"
+else
+   echo "Wrong backup type, valid values(full,delta)"
+fi
+
+declare -A month_hash=([January]=1 [February]=2 [March]=3 [April]=4 [May]=5 [June]=6 [July]=7 [August]=8 [September]=9 [October]=10 [November]=11 [December]=12)
+declare -A day_hash=([Monday]=2 [Tuesday]=3 [Wednesday]=4 [Thursday]=5 [Friday]=6 [Saturday]=1 [Sunday]=0)
+  
+# Write cron configuratin
+echo "Writing command $cmd $minute $hour $day_of_month $month $day_of_week $task $task_parameters to cron"
+if [ "$month" == "*" -a "$day_of_week" == "*" ]; then
+  eval "$cmd \"$minute\" \"$hour\" \"$day_of_month\" \"*\" \"*\" \"$task\" \"$task_parameters\""
+elif [ "$month" == "*" -a ! "$day_of_week" == "*"  ]; then
+  eval "$cmd \"$minute\" \"$hour\" \"$day_of_month\" \"*\" \"${day_hash[$day_of_week]}\" \"$task\" \"$task_parameters\""
+elif [ ! "$month" == "*" -a "$day_of_week" == "*"  ]; then
+  eval "$cmd \"$minute\" \"$hour\" \"$day_of_month\" \"${month_hash[$month]}\" \"*\" \"$task\" \"$task_parameters\""
+else
+  eval "$cmd \"$minute\" \"$hour\" \"$day_of_month\" \"${month_hash[$month]}\" \"${day_hash[$day_of_week]}\" \"$task\" \"$task_parameters\""
+fi
+# Restart cron daemon
+echo "Restarting cron daemon"
+restart_cron
+
+exit 0
+

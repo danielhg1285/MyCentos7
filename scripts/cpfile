@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# cpfile
+# Replaces file from local filesystem in remote filesystem
+# Ex: $ cpfile /home/danyboy/WorkspaceTFS/mbc-2.30-puppet/mbc-core/mbc-foreman-installer/src/main/root/usr/sbin \
+#  cluster_format_disk root 172.26.24.35 /usr/sbin            
+
+project_parent_path=${1:?}
+file=${2:?}
+user_name=${3:?}
+server_ip=${4:?}
+destiny_path=${5:?}
+ssh ${user_name}@${server_ip} "rm -f ${destiny_path}/${file}"
+scp ${project_parent_path}/${file} ${user_name}@${server_ip}:${destiny_path}
+ssh ${user_name}@${server_ip} "chmod +x ${destiny_path}/${file}"

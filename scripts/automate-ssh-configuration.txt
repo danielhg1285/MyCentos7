@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# configure_log_shipping.sh seconds
+# Ex: configure_log_shipping.sh 300
+
+generate_ssh_keys(){
+	# Configure ssh keys directory
+    #echo "Creating home directory for user postgres"
+    mkdir -p $PG_SSH_HOME
+	chown -R postgres:postgres $PG_SSH_HOME
+    su - postgres -c "cat /dev/zero | ssh-keygen -t rsa -b 4096 -f $PG_SSH_HOME/id_rsa -q -N \"\""
+}
+
+configure_ssh(){
+   local remote_user=${1:?}
+   local remote_ip=${2:?}
+   local remote_password=${3:?}
+   cat > /etc/ssh/ssh_config << EOT
+# This is the ssh client system-wide configuration file.  See
+# ssh_config(5) for more information.  This file provides defaults for
+# users, and the values can be changed in per-user configuration files
+# or on the command line.
+
+# Configuration data is parsed as follows:
+#  1. command line options
+#  2. user-specific file
+#  3. system-wide file
+# Any configuration value is only changed the first time it is set.
+# Thus, host-specific definitions should be at the beginning of the
+# configuration file, and defaults at the end.
+
+# Site-wide defaults for some commonly used options.  For a comprehensive
+# list of available options, their meanings and defaults, please see the
+# ssh_config(5) man page.
+
+Host *
+#   ForwardAgent no
+#   ForwardX11 no
+#   ForwardX11Trusted yes
+#   RhostsRSAAuthentication no
+#   RSAAuthentication yes
+#   PasswordAuthentication yes
+#   HostbasedAuthentication no
+#   GSSAPIAuthentication no
+#   GSSAPIDelegateCredentials no
+#   GSSAPIKeyExchange no
+#   GSSAPITrustDNS no
+#   BatchMode no
+#   CheckHostIP yes
+#   AddressFamily any
+#   ConnectTimeout 0
+#   StrictHostKeyChecking ask
+#   IdentityFile ~/.ssh/identity
+#   IdentityFile ~/.ssh/id_rsa
+#   IdentityFile ~/.ssh/id_dsa
+#   IdentityFile ~/.ssh/id_ecdsa
+#   IdentityFile ~/.ssh/id_ed25519
+#   Port 22
+#   Protocol 2
+#   Cipher 3des
+#   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc
+#   MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160
+#   EscapeChar ~
+#   Tunnel no
+#   TunnelDevice any:any
+#   PermitLocalCommand no
+#   VisualHostKey no
+#   ProxyCommand ssh -q -W %h:%p gateway.example.com
+#   RekeyLimit 1G 1h
+    SendEnv LANG LC_*
+    HashKnownHosts yes
+    UserKnownHostsFile=/dev/null
+    StrictHostKeyChecking no
+    GSSAPIAuthentication no
+EOT
+	su - postgres -c "cat $PG_SSH_HOME/id_rsa.pub | sshpass -p $remote_password \
+	ssh $remote_user@$remote_ip 'cat >> ~/.ssh/authorized_keys'"
+}

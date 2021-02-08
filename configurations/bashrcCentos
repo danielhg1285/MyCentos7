@@ -1,0 +1,42 @@
+# .bashrc
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+# export SYSTEMD_PAGER=
+export https_proxy=https://127.0.0.1:3128/
+
+# Maven
+export PATH=$PATH:/opt/apache-maven-3.0.4/bin
+
+# Java
+export JAVA_HOME=/usr/java/jdk1.7.0_09/
+
+# User specific aliases and functions
+alias yi='sudo yum install'
+alias yo='yum info'
+alias yr='sudo yum remove'
+alias ys='yum search'
+alias yp='yum provides'
+alias ym='sudo yum makecache'
+alias sucp='sudo cp'
+alias sunano='sudo nano'
+alias suchmod='sudo chmod'
+alias suchown='sudo chown'
+alias sustart='sudo systemctl start'
+alias sustop='sudo systemctl stop'
+alias sustatus='sudo systemctl status'
+
+# Golang Path
+export GOROOT=/usr/lib/golang
+export PATH=$PATH:$GOROOT/bin
+export GOPATH=/home/danyboy/golang
+export PATH=$PATH:$GOPATH/bin 
+export GOROOT_BOOTSTRAP=/usr/local/go
+
+##export GOBIN=$GOROOT/bin
+#export GOROOT=/usr/local/go
+#export PATH=$PATH:$GOROOT/bin

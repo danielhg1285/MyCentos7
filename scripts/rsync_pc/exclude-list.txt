@@ -1,0 +1,6 @@
+$RECYCLE.BIN
+System Volume Information
+MaquinasVirtuales
+Multimedia
+memoria
+repos

@@ -1,0 +1,8 @@
+# En el nodo remoto(Donde se encuentra la aplicacion que queremos ejecutar)
+yum groupinstall "X Window System"  
+
+# Editar /etc/ssh/ssh_config
+# Cambiar parametros
+X11Forwarding yes
+X11DisplayOffset 10
+X11UseLocalhost yes

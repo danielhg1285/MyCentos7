@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=3.3.0
+Name[en_US]=STS
+GenericName=Spring Tool Suite
+Exec=/home/danyboy/sts-3.3.0.RELEASE/STS
+Terminal=false
+Icon[en_US]=/home/danyboy/sts-3.3.0.RELEASE/icon.png
+Type=Application
+Categories=TextEditor;Development;
+Comment[en_US]=Programming Editor

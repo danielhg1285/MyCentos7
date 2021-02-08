@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+# cluster_full_backup
+#
+# This script creates a full copy of directory on destination backup path. It creates the copy on a directory 
+# with the actual date inside the backup directory.     
+#    
+# @param $1: directory to backup
+# @param $2: backup path
+#
+# Example:
+#   $ cluster_full_backup /var/lib/facedb /var/lib/diskbp1/backup/full
+#
+# AUTHOR
+#   Written by Daniel Hernández Garrigó <daniel.hernandez@datys.cu>
+
+FULL_BACKUP_CONF=/etc/cluster_full_backup.conf
+FULL_BACKUP_LOG=/var/log/full_backup.log
+RSYNC_OPTIONS="-av --progress --inplace --no-whole-file --log-file=$FULL_BACKUP_LOG"
+
+actualDirectoryPath=${1:?}
+fullBackupPath=${2:?}
+
+mkdir -p $fullBackupPath
+fullMaxNumberDirs=$(cat $FULL_BACKUP_CONF | grep copies | cut -d '=' -f 2 )
+fullActualNumberDirs=$[ $(ls -l $fullBackupPath | wc -l ) - 1 ]
+actualDate=$(date +"%Y-%m-%d-%T")
+
+# Recycle oldest backup dir if actual number of directories >= max number of directories specified in FULL_BACKUP_CONF file
+if (( fullActualNumberDirs >= fullMaxNumberDirs )); then
+   # Get oldest backup directory(First of the list)
+   # command tail -n +2 remove first line containing string "total"
+   # comand head -n +x remove the last x lines from list 
+   oldestDate=$(ls -l $fullBackupPath | awk '{ print $9}' | tail -n +2 | head -n -$[ fullActualNumberDirs - 1 ] )
+   # Rename oldest directory from list to actual date
+   mv $fullBackupPath/$oldestDate $fullBackupPath/$actualDate
+else
+echo "No entro"
+   mkdir -p $fullBackupPath/$actualDate
+fi
+
+# Create full backup using rsync
+rsync $RSYNC_OPTIONS $actualDirectoryPath/ $fullBackupPath/$actualDate/
+
+

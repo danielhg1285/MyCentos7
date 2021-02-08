@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=4.5.1
+Name[en_US]=Sublime Text
+GenericName=Sublime Text Editor
+Exec=/opt/sublime_text_3/sublime_text
+Terminal=false
+Icon[en_US]=/opt/sublime_text_3/Icon/256x256/sublime-text.png
+Type=Application
+Categories=TextEditor;Development;
+Comment[en_US]=Programming Editor

@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# cluster_restore_delta_backup
+#
+# This script restore a directory using an existing backup directory and delta files. It restore files on specified directory.
+#    
+# @param $1: full backup dir with specified date
+# @param $2: delta backup dir with specified date and full backup date
+# @param $3: directory to save recover files
+# @param $4: number of threads to use
+#
+# Example:
+#   $ cluster_restore_delta_backup /var/lib/diskbp1/backup/full/2015-11-09-09\:31\:12/ \
+#   /var/lib/diskbp1/backup/delta/2015-11-09-09\:31\:38-full-2015-11-09-09\:31\:12/ /var/lib/diskbp1/restore 6
+#
+# AUTHOR
+#   Written by Daniel Hernández Garrigó <daniel.hernandez@datys.cu>
+
+RESTORE_BACKUP_LOG=/var/log/restore_backup.log
+XDELTA_CMD=xdelta3
+XDELTA_OPTIONS="-v -f -d -s "
+
+fullBackupDatePath=${1:?}
+deltaBackupDatePath=${2:?}
+restorePath=${3:?}
+threads=$4
+
+# Create restore backup directory tree
+find "$fullBackupDatePath" -type d | sed "s|$fullBackupDatePath||" | parallel mkdir -p $restorePath/{}
+
+# Restore xdelta backup using parallel
+echo "$(date -u) Executing backup restore using $threads threads" >> $RESTORE_BACKUP_LOG 2>&1
+find "$fullBackupDatePath/" -type f | sed "s|$fullBackupDatePath/||" | grep -v .wal | parallel --jobs $threads -k \
+"echo $(date -u) Restoring backup from file $fullBackupDatePath/{} \
+and delta file $deltaBackupDatePath/{}.delta on file $restorePath/{} >> $RESTORE_BACKUP_LOG 2>&1; \
+$XDELTA_CMD $XDELTA_OPTIONS $fullBackupDatePath/{} $deltaBackupDatePath/{}.delta $restorePath/{} >> $RESTORE_BACKUP_LOG 2>&1"

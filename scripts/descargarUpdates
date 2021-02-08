@@ -1,0 +1,9 @@
+#!/bin/bash
+rm -r /home/danyboy/Updatesllevar
+mkdir -p /home/danyboy/Updatesllevar
+cd /home/danyboy/Updatesllevar/
+wget -r -nH -np --cut-dirs=1 --no-check-certificate -U Mozilla --no-proxy http://$ntp1.com:2221
+rm -f *.html
+if [ -d /home/danyboy/Updatesllevar -a -d /run/media/danyboy/LIVE/tmpflash/Updatesllevar ]; then
+    rsync -av /home/danyboy/Updatesllevar/ /run/media/danyboy/LIVE/tmpflash/Updatesllevar/
+fi

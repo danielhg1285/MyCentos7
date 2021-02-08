@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# This script write a cron job configuration. If the cron job already exists
+# it only change its execution time.
+# @Param $1: minute in cron format
+# @Param $2: minute in cron format
+# @Param $3: minute in cron format
+# @Param $4: minute in cron format
+# @Param $5: minute in cron format
+# @Param $6: task to be executed 
+
+#CRON_CFG_PATH=/var/spool/cron/root
+CRON_CFG_PATH=/tmp/cron_example
+minute=${1}
+hour=${2}
+day_of_month=${3}
+month=${4}
+day_of_week=${5}
+task=${6}
+cron_time="$minute $hour $day_of_month $month $day_of_week"
+
+if [[ ! -e "$CRON_CFG_PATH" ]]; then
+    cat > "$CRON_CFG_PATH" << EOT
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=root
+HOME=/
+
+# For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * user-name command to be executed
+EOT
+fi
+sed -i.bak -e "\|$task|d" \
+           -e "\|user-name command to be executed| a$cron_time $task" $CRON_CFG_PATH
+

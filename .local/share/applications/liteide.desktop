@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=x27.2.1
+Name[en_US]=Lite IDE
+GenericName=Lite IDE for Go programming lenguage
+Exec=/home/danyboy/WorkspaceGithub/GO/liteide/build/liteide/bin/liteide
+Terminal=false
+Icon[en_US]=/home/danyboy/WorkspaceGithub/GO/liteide/build/liteide/share/liteide/welcome/images/liteide400.png
+Type=Application
+Categories=TextEditor;Development;
+Comment[en_US]=Programming IDE

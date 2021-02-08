@@ -1,0 +1,19 @@
+_copy_mysql_database.sh(){
+        local cur prev options
+        compopt +o default
+        COMPREPLY=()
+        cur=${COMP_WORDS[COMP_CWORD]}
+        prev=${COMP_WORDS[COMP_CWORD-1]}
+
+        # The basic options we'll complete.
+        options=" --host --user --password --olddb --newdb"
+
+        # Complete the arguments to some of the basic commands.
+        case $prev in
+                
+                *)
+        esac
+        COMPREPLY=($(compgen -W "${options}" -- ${cur}))
+        return 0
+}
+complete -F _copy_mysql_database.sh copy_mysql_database.sh

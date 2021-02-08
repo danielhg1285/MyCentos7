@@ -1,0 +1,5 @@
+[core]
+	gitproxy = git-proxy
+[user]
+	name = Daniel Hernández
+	email = danyboy1104@gmail.com

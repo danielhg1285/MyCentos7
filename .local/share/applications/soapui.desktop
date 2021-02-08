@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=4.5.1
+Name[en_US]=Soapui
+GenericName=Soapui Test Suite
+Exec=/opt/soapui-4.5.1/bin/soapui.sh
+Terminal=false
+Icon[en_US]=/opt/soapui-4.5.1/bin/soapui32.png
+Type=Application
+Categories=Development;
+Comment[en_US]=Test Suite
